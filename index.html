@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SD药渣过滤器</title>
+    <link rel="stylesheet" href="./style.css" />
+    <link rel="icon" type="ico" sizes="32x32" href="./logo32.ico">
+    <link rel="icon" type="ico" sizes="16x16" href="./logo16.ico">
+  </head>
+  <body>
+    <div id="app">
+      <div class="loader" v-if="loading">
+        <div data-glitch="Loading..." class="glitch">Loading...</div>
+      </div>
+      <div class="noOrigin" v-if="swiperList.length<1" >
+        <button class="btn" @click="chooseOrigin">
+          选择源文件夹
+        </button>
+        <div class="checkbox-wrapper">
+            <input v-model="turbo" type="checkbox" class="check" id="check1-61">
+            <label for="check1-61" class="label">
+              <svg width="45" height="45" viewBox="0 0 95 95">
+                <rect x="30" y="20" width="50" height="50" stroke="#d9acf5" fill="none"></rect>
+                <g transform="translate(0,-952.36222)">
+                  <path d="m 56,963 c -102,122 6,9 7,9 17,-5 -66,69 -38,52 122,-77 -7,14 18,4 29,-11 45,-43 23,-4" stroke="#d9acf5" stroke-width="3" fill="none" class="path1"></path>
+                </g>
+              </svg>
+              <span>性能模式(加载更快,图片过多或电脑性能较低时推荐使用，图片数超过200强制开启)</span>
+            </label>
+          </div>
+        <div class="tips">
+          <p v-html="item" v-for="item in noOiginTip"></p>
+        </div> 
+      </div>
+
+      <div class="container" v-if="swiperList.length>0||handleNum>0" >
+        <div class="swiper">
+          <img
+            draggable="false"
+            :src="item"
+            :class="{active:curImgIndex===index,blur:privacyMode}"
+            alt=""
+            v-for="(item,index) in swiperList"
+            :key="index"
+            @click="chooseImg(index)"
+          />
+        </div>
+        <div class="previewBox">
+          <img :src="swiperList[curImgIndex]" alt="" :class="{blur:privacyMode}" draggable="false">
+        </div>
+        <div class="optionBox">
+          <div class="stautsBar">
+            <div>待处理: <span>{{noHandleNum}}</span> </div>
+            <div>已处理:<span>{{handleNum}}</span> 合格:<span>{{passNum}}</span> 不合格:<span>{{failNum}}</span></div>
+            <div class="origin" @click="chooseOrigin">源目录: <a href="javascript:;">{{origin.name}}</a> </div>
+          </div>
+          <div class="btns">
+            <button class="deleteBtn" @click="deleteImg">
+              <span class="shadow"></span>
+              <span class="edge"></span>
+              <span class="front text">删除 </span>
+            </button>
+            <button class="saveBtn" @click="saveImg">
+              <svg class="empty" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="32" height="32"><path fill="none" d="M0 0H24V24H0z"></path><path d="M16.5 3C19.538 3 22 5.5 22 9c0 7-7.5 11-10 12.5C9.5 20 2 16 2 9c0-3.5 2.5-6 5.5-6C9.36 3 11 4 12 5c1-1 2.64-2 4.5-2zm-3.566 15.604c.881-.556 1.676-1.109 2.42-1.701C18.335 14.533 20 11.943 20 9c0-2.36-1.537-4-3.5-4-1.076 0-2.24.57-3.086 1.414L12 7.828l-1.414-1.414C9.74 5.57 8.576 5 7.5 5 5.56 5 4 6.656 4 9c0 2.944 1.666 5.533 4.645 7.903.745.592 1.54 1.145 2.421 1.7.299.189.595.37.934.572.339-.202.635-.383.934-.571z"></path></svg>
+              <svg class="filled" height="32" width="32" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M0 0H24V24H0z" fill="none"></path><path d="M16.5 3C19.538 3 22 5.5 22 9c0 7-7.5 11-10 12.5C9.5 20 2 16 2 9c0-3.5 2.5-6 5.5-6C9.36 3 11 4 12 5c1-1 2.64-2 4.5-2z"></path></svg>
+              保存
+            </button>
+          </div>
+          <div class="checkbox-wrapper">
+            <input v-model="autoDelete" type="checkbox" class="check" id="check1-61">
+            <label for="check1-61" class="label">
+              <svg width="45" height="45" viewBox="0 0 95 95">
+                <rect x="30" y="20" width="50" height="50" stroke="#892cdc" fill="none"></rect>
+                <g transform="translate(0,-952.36222)">
+                  <path d="m 56,963 c -102,122 6,9 7,9 17,-5 -66,69 -38,52 122,-77 -7,14 18,4 29,-11 45,-43 23,-4" stroke="#892cdc" stroke-width="3" fill="none" class="path1"></path>
+                </g>
+              </svg>
+              <span>结束时清空deleteImgs文件夹</span>
+            </label>
+          </div>
+          <div class="tips">
+            <ul>
+              使用方法：
+              <li v-for="item in tips">{{item}}</li>
+            </ul>
+            <ul>
+              使用须知：
+              <li v-for="item in warning" v-html="item"></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+  <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+  <script src="./index.js"></script>
+</html>
