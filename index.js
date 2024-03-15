@@ -17,6 +17,7 @@ createApp({
             failNum: 0,
             loading: true,
             turbo: false,
+            greeting: "你好啊",
             privacyMode: false,//隐私模式
             tips: [
                 "点击红色按钮或者按下键盘'←'键，将图片移动到deleteImgs文件夹",
@@ -46,9 +47,16 @@ createApp({
     },
     mounted() {
         const that = this
-        setTimeout(() => {
+        const bgImg = new Image();
+        bgImg.src = 'https://longhao.tech/SDtool/wpback2k.png';
+        bgImg.onload = function () {
             that.loading = false
-        }, 0);
+            // 可以在这里对页面进行操作，如隐藏加载动画等
+        };
+        bgImg.onerror = function () {
+            that.loading = false
+            console.error('背景图片加载失败!');
+        };
         document.addEventListener('keydown', function (event) {
             // 检查 ` 键是否被按下
             console.log('keydown',event)
