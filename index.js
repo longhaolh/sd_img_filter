@@ -17,6 +17,7 @@ createApp({
             failNum: 0,
             loading: true,
             turbo: false,
+            greeting: "你好啊",
             privacyMode: false,//隐私模式
             tips: [
                 "点击红色按钮或者按下键盘'←'键，将图片移动到deleteImgs文件夹",
@@ -31,7 +32,7 @@ createApp({
                 '如上面所言,用的是尚在研发中的API,所以可能会有一些小bug,请谅解',
                 '使用中遇见问题可将遇见的问题发送至邮箱: <a href="mailto:1522024324@qq.com">1522024324@qq.com</a>',
                 "交流群:<a href='https://qm.qq.com/q/r143Zn6GSA' target='_blank'>点击加入</a>",
-                "如果觉得本项目对您有帮助,可以<a href='#' target='_blank'>请我喝杯咖啡</a>,谢谢您的支持",
+                "如果觉得本项目对您有帮助,可以<a href='https://longhao.tech/donation' target='_blank'>请我喝杯咖啡</a>,谢谢您的支持",
 
             ],
             noOiginTip: [
@@ -46,9 +47,16 @@ createApp({
     },
     mounted() {
         const that = this
-        setTimeout(() => {
+        const bgImg = new Image();
+        bgImg.src = 'https://longhao.tech/SDtool/wpback2k.png';
+        bgImg.onload = function () {
             that.loading = false
-        }, 0);
+            // 可以在这里对页面进行操作，如隐藏加载动画等
+        };
+        bgImg.onerror = function () {
+            that.loading = false
+            console.error('背景图片加载失败!');
+        };
         document.addEventListener('keydown', function (event) {
             // 检查 ` 键是否被按下
             console.log('keydown',event)
