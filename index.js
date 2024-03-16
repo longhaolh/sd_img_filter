@@ -23,17 +23,16 @@ createApp({
                 "点击红色按钮或者按下键盘'←'键，将图片移动到deleteImgs文件夹",
                 "点击白色按钮或者按下键盘'→'键，将图片移动到savedImgs文件夹，可选择关闭页面时彻底清除",
                 '点击原目录名称可更换源目录',
-                "隐私键'~',一键模糊所有图片"
+                "'~'键打开隐私模式,一键模糊所有图片"
             ],
             warning: [
-                '本项目仅供学习交流，完全免费，不得私自用于商业用途',
+                "本项目仅供学习交流，完全免费，不得私自用于商业用途，<a href='https://github.com/longhaolh/sd_img_filter.git' target='_blank'>项目已开源，欢迎star</a>",
                 '所有图片均为本地处理,不会上传到任何服务器',
-                '本项目使用技术尚在研究阶段,大部分浏览器不支持此API,请使用edge浏览器或者chrome浏览器',
-                '如上面所言,用的是尚在研发中的API,所以可能会有一些小bug,请谅解',
+                "本项目使用技术尚在研究阶段,大部分浏览器不支持此API,推荐使用<a href='https://www.microsoft.com/zh-cn/edge' target='_blank'>Edge浏览器</a>和<a href='https://www.google.cn/intl/zh-CN/chrome/' target='_blank'>Chrome浏览器</a>",
+                '如上面所言，本项目使用的是尚在研发中的API，所以可能会有一些小bug，请您谅解，如您在使用中遇见了，可以联系我。',
                 '使用中遇见问题可将遇见的问题发送至邮箱: <a href="mailto:1522024324@qq.com">1522024324@qq.com</a>',
                 "交流群:<a href='https://qm.qq.com/q/r143Zn6GSA' target='_blank'>点击加入</a>",
                 "如果觉得本项目对您有帮助,可以<a href='https://longhao.tech/donation' target='_blank'>请我喝杯咖啡</a>,谢谢您的支持",
-
             ],
             noOiginTip: [
                 "<p class='warn'>本项目基于File System API开发,目前只有<a href='https://www.microsoft.com/zh-cn/edge' target='_blank'>Edge浏览器</a>和<a href='https://www.google.cn/intl/zh-CN/chrome/' target='_blank'>Chrome浏览器</a>对此技术支持尚可,如遇问题请先下载这两种浏览器尝试一下</p>",
@@ -45,8 +44,18 @@ createApp({
             ],
         }
     },
+    watch: {
+        autoDelete(n) {
+            localStorage.setItem('autoDelete', n)
+        },
+        turbo(n) {
+            localStorage.setItem('turbo', n)
+        }
+    },
     mounted() {
         const that = this
+        // 读取本地配置文件
+        that.readCofig()
         const bgImg = new Image();
         bgImg.src = 'https://longhao.tech/SDtool/wpback2k.png';
         bgImg.onload = function () {
@@ -83,6 +92,11 @@ createApp({
         });
     },
     methods: {
+        // 读取配置
+        readCofig() {
+            this.autoDelete = localStorage.getItem('autoDelete') === 'true'
+            this.turbo = localStorage.getItem('turbo') === 'true'
+        },
         // 选取源文件夹
         async chooseOrigin() {
             const that = this
@@ -159,7 +173,9 @@ createApp({
             }
 
             // 如果图片文件超过200，则强制开启性能模式
-            that.turbo = imageCount > 200;
+            if (!that.turbo) {
+                that.turbo = imageCount > 200;
+            }
             that.noHandleNum = imageCount;
             // 根据性能模式加载不同数量的图片
             for (let [index, item] of root.children.entries()) {
