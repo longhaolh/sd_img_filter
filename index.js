@@ -32,7 +32,7 @@ createApp({
                 '如上面所言,用的是尚在研发中的API,所以可能会有一些小bug,请谅解',
                 '使用中遇见问题可将遇见的问题发送至邮箱: <a href="mailto:1522024324@qq.com">1522024324@qq.com</a>',
                 "交流群:<a href='https://qm.qq.com/q/r143Zn6GSA' target='_blank'>点击加入</a>",
-                "如果觉得本项目对您有帮助,可以<a href='#' target='_blank'>请我喝杯咖啡</a>,谢谢您的支持",
+                "如果觉得本项目对您有帮助,可以<a href='https://longhao.tech/donation' target='_blank'>请我喝杯咖啡</a>,谢谢您的支持",
 
             ],
             noOiginTip: [
