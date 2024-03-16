@@ -17,7 +17,17 @@
       s.parentNode.insertBefore(hm, s);
     })();
   </script>
+  <script>
+    // 检测是否为 PC 端浏览器环境
+    function isDesktop() {
+      return !(/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent));
+    }
 
+    // 示例用法
+    if (!isDesktop()) {
+      alert('本项目旨在为SD处理大量图片提供便利，只适配了PC端浏览器，移动端浏览器可能会出现不可预知的问题，建议使用PC端浏览器访问')
+    }
+  </script>
   <body>
     <div id="app">
       <div class="loader" v-if="loading">
