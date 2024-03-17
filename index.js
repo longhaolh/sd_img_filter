@@ -32,7 +32,7 @@ createApp({
                 "如果觉得本项目对您有帮助,可以<a href='https://longhao.tech/donation' target='_blank'>请我喝杯咖啡</a>,谢谢您的支持",
             ],
             noOiginTip: [
-                "<p class='warn'>本项目基于File System API开发,目前只有<a href='https://www.microsoft.com/zh-cn/edge' target='_blank'>Edge浏览器</a>和<a href='https://www.google.cn/intl/zh-CN/chrome/' target='_blank'>Chrome浏览器</a>对此技术支持尚可,如遇问题请先下载这两种浏览器尝试一下</p>",
+                "<p class='warn'>本项目基于File System Access API开发,目前只有<a href='https://www.microsoft.com/zh-cn/edge' target='_blank'>Edge浏览器</a>和<a href='https://www.google.cn/intl/zh-CN/chrome/' target='_blank'>Chrome浏览器</a>对此技术支持尚可,如遇问题请先下载这两种浏览器尝试一下</p>",
                 "<p class='warn'>本项目旨在为SD处理大量图片提供便利，只适配了PC端浏览器，移动端浏览器可能会出现不可预知的问题，建议使用PC端浏览器访问</p>",
                 '第一步：点击按钮选择源目录（仅支持处理图片）',
                 "第二步：弹出的授权按钮点击'查看文件'和'保存更改'，授权浏览器访问本地文件系统",
@@ -286,6 +286,7 @@ createApp({
         },
         // 修改 copyAndDeleteSavedImages 方法以复制和删除 savedImgs 文件夹
         async copyAndDeleteSavedImages(rootHandle) {
+            this.loading
             try {
                 const savedImgsDirHandle = await rootHandle.getDirectoryHandle('savedImgs', { create: false });
                 let copyPromises = [];
