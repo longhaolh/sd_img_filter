@@ -3,9 +3,6 @@ createApp({
     data() {
         return {
             origin: {},
-            ip: '',
-            duration: 0,
-            interval: null,
             swiperList: [],
             swiperHandle: [],
             curImgIndex: 0,
@@ -17,13 +14,13 @@ createApp({
             failNum: 0,
             loading: true,
             turbo: false,
-            greeting: "你好啊",
             privacyMode: false,//隐私模式
             tips: [
                 "点击红色按钮或者按下键盘'←'键，将图片移动到deleteImgs文件夹",
-                "点击白色按钮或者按下键盘'→'键，将图片移动到savedImgs文件夹，可选择关闭页面时彻底清除",
+                "点击白色按钮或者按下键盘'→'键，将图片移动到savedImgs文件夹，可选择离开页面时彻底清除",
                 '点击原目录名称可更换源目录',
-                "'~'键打开隐私模式,一键模糊所有图片"
+                "'~'键打开隐私模式,一键模糊所有图片",
+                "deleteImgs下的图片会在筛选完最后一张图时清空"
             ],
             warning: [
                 "本项目仅供学习交流，完全免费，不得私自用于商业用途，<a href='https://github.com/longhaolh/sd_img_filter.git' target='_blank'>项目已开源，欢迎star</a>",
@@ -41,6 +38,7 @@ createApp({
                 "第二步：弹出的授权按钮点击'查看文件'和'保存更改'，授权浏览器访问本地文件系统",
                 '第三步：选择源目录后，会自动加载源目录下的所有图片文件',
             ],
+            option: false,
         }
     },
     watch: {
@@ -67,7 +65,7 @@ createApp({
         };
         document.addEventListener('keydown', function (event) {
             // 检查 ` 键是否被按下
-            console.log('keydown',event)
+            console.log('keydown', event)
             if (event.key === '`') {
                 that.privacyMode = !that.privacyMode
             }
@@ -136,8 +134,7 @@ createApp({
                     console.error('当前浏览器不支持 showDirectoryPicker 方法');
                 }
             } catch (error) {
-                console.error('调用 showDirectoryPicker 时发生错误', error);
-                alert('本项目需要您提供源目录才能正常运作,请重新选择源文件夹')
+                alert("本项目需要您提供文件权限才能正常运作,请选择'保存更改'选项")
             }
         },
         // 处理文件夹句柄
@@ -173,7 +170,7 @@ createApp({
 
             // 如果图片文件超过200，则强制开启性能模式
             if (!that.turbo) {
-                that.turbo = imageCount > 200;
+                that.turbo = imageCount > 50;
             }
             that.noHandleNum = imageCount;
             // 根据性能模式加载不同数量的图片
@@ -190,7 +187,7 @@ createApp({
             that.swiperHandle = imgHandle;
 
             // 对文件句柄中每个文件进行操作
-            that.loading = true;
+            !that.turbo ? that.loading = true : ''
             try {
                 const files = await Promise.all(imgArrHandles.map((fileHandle) => fileHandle));
                 let imgPromises = files.map((file) => {
@@ -226,6 +223,9 @@ createApp({
         },
         // 保存图片到savedImgs文件夹
         async saveImg() {
+            // 防止在上一个保存操作未完成时触发
+            if (this.option) return;
+            this.option = true;
             const that = this;
             try {
                 const fileHandle = that.swiperHandle[that.curImgIndex]; // 原始文件句柄
@@ -246,18 +246,19 @@ createApp({
                 } catch (e) {
                     // 如果浏览器不支持删除文件，或者用户没有授予权限，抑或其他原因导致删除失败的话，就会进入这里。
                     console.error('删除原图片时出错: ', e);
-                    // 这里可以不用alert给用户错误提示，因为文件已经复制成功。
                 }
-
-                // 弹出提示
             } catch (e) {
-                console.error('移动图片时出错', e);
-                alert('移动图片时出错');
+                alert("本项目需要您提供文件权限才能正常运作,请选择'保存更改'选项")
+            } finally {
+                that.option = false;
             }
         },
 
         // 删除图片到deleteImgs文件夹
         async deleteImg() {
+            // 防止在上一个删除操作未完成时触发
+            if (this.option) return;
+            this.option = true;
             const that = this;
             try {
                 const fileHandle = that.swiperHandle[that.curImgIndex]; // 原始文件句柄
@@ -275,40 +276,96 @@ createApp({
                     that.refreshPage()
                     that.failNum += 1
                 } catch (e) {
-                    // 如果浏览器不支持删除文件，或者用户没有授予权限，抑或其他原因导致删除失败的话，就会进入这里。
                     console.error('删除原图片时出错: ', e);
                 }
             } catch (e) {
-                console.error('移动图片时出错', e);
-                alert('移动图片时出错');
+                alert("本项目需要您提供文件权限才能正常运作,请选择'保存更改'选项")
+            } finally {
+                that.option = false;
             }
         },
-        // 刷新所有句柄
+        // 修改 copyAndDeleteSavedImages 方法以复制和删除 savedImgs 文件夹
+        async copyAndDeleteSavedImages(rootHandle) {
+            try {
+                const savedImgsDirHandle = await rootHandle.getDirectoryHandle('savedImgs', { create: false });
+                let copyPromises = [];
+                for await (const entry of savedImgsDirHandle.values()) {
+                    if (entry.kind === 'file') {
+                        // 复制文件内容到根目录
+                        const file = await entry.getFile();
+                        const newFileHandle = await rootHandle.getFileHandle(file.name, { create: true });
+                        const writableStream = await newFileHandle.createWritable();
+                        copyPromises.push(writableStream.write(file).then(() => writableStream.close()));
+                    }
+                }
+                await Promise.all(copyPromises);
+                // 删除整个 savedImgs 文件夹
+                await rootHandle.removeEntry('savedImgs', { recursive: true });
+            } catch (error) {
+                console.error('复制或删除 savedImgs 目录时出错: ', error);
+                throw error;
+            }
+        },
+
+        //重新处理源文件夹根句柄
         refreshPage() {
             const that = this;
             that.handleNum += 1
-            // 我们需要重新遍历 directoryHandle 中文件夹的内容
-            that.foreachDir(that.directoryHandle).then(root => {
-                that.origin = root; // 更新 origin 对象
-                // 处理新的文件数组，并且重新生成 swiperList 和 swiperHandle
-                that.handleImgArr(root);
+            that.foreachDir(that.directoryHandle).then(async updatedRootHandle => {
+                that.origin = updatedRootHandle; // 更新 origin 对象
+                // 检查根目录下是否只存在 savedImgs、deleteImgs 文件夹和非图片文件
+                let onlySpecialDirsAndNonImageFilesExist = true;
+                for (const child of updatedRootHandle.children) {
+                    // 检查是否只有savedImgs 和 deleteImgs文件夹
+                    if (child.kind === 'directory' &&
+                        !['savedImgs', 'deleteImgs'].includes(child.name)) {
+                        onlySpecialDirsAndNonImageFilesExist = false;
+                        break;
+                    }
+                    if (child.kind === 'file') {
+                        const file = await child.getFile();
+                        if (file.type.match('image.*')) {
+                            // 如果文件是图片类型，则不满足条件
+                            onlySpecialDirsAndNonImageFilesExist = false;
+                            break;
+                        }
+                    }
+                }
+                if (onlySpecialDirsAndNonImageFilesExist) {
+                    // 初始化界面变量
+                    alert(`太棒了!本次图片已经筛选完毕了,一共处理了${that.handleNum}张图片,清除了${that.failNum}张废图，继续清理请重新选择源文件夹`)
+                    that.origin = {}
+                    that.swiperList = that.swiperHandle = []
+                    that.curImgIndex = 0
+                    that.handleNum = that.noHandleNum = that.passNum = that.failNum = 0
+                    that.privacyMode = false
+                    // 如果满足条件，执行复制和删除 savedImgs 中的图片，然后删除 savedImgs 和 deleteImgs 文件夹
+                    await that.copyAndDeleteSavedImages(updatedRootHandle);
+                    // 删除 deleteImgs 文件夹及其内容
+                    await updatedRootHandle.removeEntry('deleteImgs', { recursive: true });
+                } else {
+                    // 否则继续处理新的文件数组，并且重新生成 swiperList 和 swiperHandle
+                    await that.handleImgArr(updatedRootHandle);
+                }
             }).catch(error => {
                 console.error('刷新页面时遍历目录出错', error);
-                alert('刷新页面数据失败');
             });
         },
+
+
         async delete(handle) {
             const that = this;
             try {
                 // 获取deleteImgs目录的句柄
                 const deleteImgsDirHandle = await handle.getDirectoryHandle('deleteImgs');
+                if (!deleteImgsDirHandle) {
+                    return
+                }
                 // 遍历deleteImgs目录删除文件
                 for await (const entry of deleteImgsDirHandle.values()) {
                     if (entry.kind === 'file') {
                         // 确定条目是文件
-                        console.log(`正在删除: ${entry.name}`);
                         await deleteImgsDirHandle.removeEntry(entry.name);
-                        console.log(`${entry.name} 已被删除`);
                     }
                 }
                 console.log('deleteImgs目录下的所有图片已经删除');
@@ -318,7 +375,6 @@ createApp({
         }
     },
     beforeDestroy() {
-        clearInterval(this.interval);
         this.delete(this.origin)
     }
 

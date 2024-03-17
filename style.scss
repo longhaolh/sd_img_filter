@@ -123,6 +123,7 @@ body {
   }
   .active {
     height: 100%;
+    
   }
 }
 .previewBox {
@@ -228,9 +229,8 @@ body {
       background: transparent;
       padding: 0;
       cursor: pointer;
-      outline-offset: 4px;
+      outline: none;
       transition: filter 250ms;
-
       touch-action: manipulation;
       margin-right: 20px;
       &:hover {
