@@ -73,11 +73,11 @@ createApp({
             }
             // 检查是否是左箭头键(键码37)
             if (event.key === 'ArrowLeft') {
-                that.deleteImg()
+                that.swiperList.length < 1 ? '' : that.deleteImg()
             }
             // 检查是否是右箭头键(键码39)
             if (event.key === 'ArrowRight') {
-                that.saveImg()
+                that.swiperList.length < 1 ? '' : that.saveImg()
             }
         });
         window.addEventListener('beforeunload', function (event) {
