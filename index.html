@@ -1,10 +1,9 @@
 <!DOCTYPE html>
 <html lang="zh-cn">
-
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>SD药渣过滤器</title>
+  <title>SD筛图器</title>
   <link rel="stylesheet" href="./style.css" />
   <link rel="icon" type="ico" sizes="32x32" href="./logo32.ico" />
   <link rel="icon" type="ico" sizes="16x16" href="./logo16.ico" />
@@ -17,15 +16,12 @@
     var s = document.getElementsByTagName("script")[0];
     s.parentNode.insertBefore(hm, s);
   })();
-</script>
-<script>
   // 检测是否为 PC 端浏览器环境
   function isDesktop() {
     return !/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
       navigator.userAgent
     );
   }
-
   // 示例用法
   if (!isDesktop()) {
     alert(
@@ -33,15 +29,24 @@
     );
   }
 </script>
-
 <body>
   <div id="app">
+    <!-- 公告 -->
+    <div class="scrolling-banner" v-if="swiperList.length<1">
+        <p v-html="notice"></p>
+    </div>
+    <!-- dialog弹框 -->
+    <dialog :open="dialogVisible">
+      <div class="closeBtn" @click="dialogVisible = false">X</div>
+      <p class="dialog-msg" v-html="dialogMsg"></p>
+    </dialog>
     <div class="loader" v-if="loading">
       <div data-glitch="客官别急,服务器快冒烟了(ಥ﹏ಥ)" class="glitch">
         客官别急,服务器快冒烟了(ಥ﹏ಥ)
       </div>
     </div>
     <div class="noOrigin" v-if="swiperList.length<1">
+      <!-- <button @click="dialogVisible = true">打开dialog</button> -->
       <button class="btn" @click="chooseOrigin">选择源文件夹</button>
       <div class="checkbox-wrapper">
         <input v-model="turbo" type="checkbox" class="check" id="check1-61" />
@@ -127,10 +132,10 @@
         </div>
       </div>
     </div>
+    
   </div>
 </body>
 <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 <script src="./index.js"></script>
 
 </html>
