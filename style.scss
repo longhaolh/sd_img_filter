@@ -535,3 +535,12 @@ a {
     transform: translateX(-100%);
   }
 }
+.version{
+  position: fixed;
+  bottom: 5px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 99;
+  color: $accent-100;
+
+}
