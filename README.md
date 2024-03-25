@@ -1,16 +1,16 @@
-# sd_img_fileter
+# sd筛图器介绍
 
-基于FileSystemAPI开发的在线处理SD出图文件夹图片的工具,可以方便快捷的对SD图库进行清理,告别使用图片查看软件一个个低效的删除
+基于[FileSystemAccessAPI](https://wicg.github.io/file-system-access/)开发的在线处理SD出图文件夹图片的工具,可以方便快捷的对SD图库进行清理,告别使用图片查看软件一个个低效的删除
 
 [点击前往体验](https://longhao.tech/SDtool/)
 
 项目预览
 
-![1710588210022](image/README/1710588210022.png)![1710588220340](image/README/1710588220340.png)
+![1711367429145](image/README/1711367429145.png)
 
 # 本地使用
 
-## clone本仓库
+## clone本仓库或者直接下载zip文件解压
 
 ```javascript
 git clone https://github.com/longhaolh/sd_img_filter.git
@@ -20,14 +20,14 @@ git clone https://github.com/longhaolh/sd_img_filter.git
 git clone https://gitee.com/longhao888/sd_img_filter.git
 ```
 
-直接运行index.html文件即可
+拉取或者解压后直接运行index.html文件即可
 
 # 更新日志
 
 ## v0.2.1
 
 1. 新增撤销功能，在未结束筛选、未刷新页面时可以使用快捷键ctrl+z撤销‘保存’、‘删除’操作
-2. 新增三个快捷键，Ctrl+S，Ctrl+D，Ctrl+Z，分别用于保存、删除、撤销，是不是一下子就顺手了呢^_^
+2. 新增三个快捷键，Ctrl+S，Ctrl+D，Ctrl+Z，Mac用户也可以用meta键+S+D+Z分别用于保存、删除、撤销，是不是一下子就顺手了呢^_^
 
 ## v0.2.0
 
