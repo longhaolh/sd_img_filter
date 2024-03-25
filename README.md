@@ -8,6 +8,20 @@
 
 ![1710588210022](image/README/1710588210022.png)![1710588220340](image/README/1710588220340.png)
 
+# 本地使用
+
+## clone本仓库
+
+```javascript
+git clone https://github.com/longhaolh/sd_img_filter.git
+```
+
+```javascript
+git clone https://gitee.com/longhao888/sd_img_filter.git
+```
+
+直接运行index.html文件即可
+
 # 更新日志
 
 ## v0.2.1
