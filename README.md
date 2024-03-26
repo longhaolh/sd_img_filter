@@ -22,6 +22,10 @@ git clone https://gitee.com/longhao888/sd_img_filter.git
 
 拉取或者解压后直接运行index.html文件即可
 
+# 如果你有余力且觉得这个项目对你有帮助,欢迎支持,这将是对我的最大认可
+
+![1711455260856](image/README/1711455260856.png)![1711455264118](image/README/1711455264118.png)
+
 # 更新日志
 
 ## v0.2.1
