@@ -54,7 +54,7 @@
       </div>
       <div class="noOrigin" v-if="swiperList.length<1">
         <div class="btn-wrap">
-          <button class="btn" id="installButton" @click="installApp" v-if="showInstallBtn&&!isPWA">安装本应用到桌面</button>
+          <button class="btn" id="installButton" @click="installApp" v-if="showInstallBtn&&!isPWA&&deferredPrompt">安装本应用到桌面</button>
           <button class="btn" @click="chooseOrigin">选择源文件夹</button>
         </div>
         <div class="checkbox-wrapper">
