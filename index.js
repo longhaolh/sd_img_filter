@@ -46,6 +46,8 @@ createApp({
             option: false,
             historyStack: [],
             showInstallBtn: false,
+            isPWA: false,
+            deferredPrompt: null,
             notice: "本站新增PWA安装功能,可以作为PWA应用安装到电脑桌面,不用打开浏览器即可使用,仅支持<a href='https://www.microsoft.com/zh-cn/edge' target='_blank'>Edge浏览器</a>和<a href='https://www.google.cn/intl/zh-CN/chrome/' target='_blank'>Chrome浏览器</a>安装，点击下方安装按钮即可一键安装，没有按钮请更换浏览器再试试吧！"
         }
     },
@@ -71,38 +73,20 @@ createApp({
             that.loading = false
             console.error('背景图片加载失败!');
         };
-        if ("serviceWorker" in navigator && "onbeforeinstallprompt" in window) {
-            const installButton = document.getElementById("installButton");
-            let deferredPrompt;
+        that.isPWAMode()
+        that.isEdgeOrChrome()
+        if ("onbeforeinstallprompt" in window) {
             window.addEventListener("beforeinstallprompt", (e) => {
                 // 防止Chrome 67及更早版本自动显示安装提示
                 e.preventDefault();
                 // 缓存事件以便稍后触发
-                deferredPrompt = e;
-                that.showInstallBtn = isEdgeOrChrome()
+                that.deferredPrompt = e;
             });
-            installButton.addEventListener("click", (e) => {
-                // 隐藏用户界面，显示安装按钮
-                installButton.hidden = true;
-                // 显示安装提示
-                deferredPrompt.prompt();
-                // 等待用户响应用户提示
-                deferredPrompt.userChoice.then((choiceResult) => {
-                    if (choiceResult.outcome === "accepted") {
-                        console.log("用户接受安装");
-                    } else {
-                        console.log("用户拒绝安装");
-                    }
-                    deferredPrompt = null;
-                });
-            });
-            function isEdgeOrChrome() {
-                const userAgent = navigator.userAgent;
-                const isChrome = (
-                    /Chrome\/[0-9.]+/.test(userAgent) || /Edg\/[0-9.]+/.test(userAgent)
-                );
-                console.log('isChrome', isChrome)
-            }
+
+        } else {
+            console.warn('浏览器不支持PWA');
+            that.showInstallBtn = false
+            that.isPWA = false
         }
 
 
@@ -311,7 +295,6 @@ createApp({
                 that.option = false;
             }
         },
-
         // 删除图片到deleteImgs文件夹
         async deleteImg() {
             // 防止在上一个删除操作未完成时触发
@@ -366,7 +349,6 @@ createApp({
                 throw error;
             }
         },
-
         //重新处理源文件夹根句柄
         refreshPage() {
             const that = this;
@@ -411,7 +393,6 @@ createApp({
                 console.error('刷新页面时遍历目录出错', error);
             });
         },
-
         // 删除操作
         async delete(handle) {
             const that = this;
@@ -468,7 +449,6 @@ createApp({
                 alert("撤销保存失败！");
             }
         },
-
         // 实际执行撤销删除操作的方法
         async undoDelete(fileHandle) {
             // 将删除的文件移回到原始位置...
@@ -519,7 +499,6 @@ createApp({
                 console.error('读取Exif信息出错:', error);
             }
         },
-
         // 将SD信息字符串解析成标签，这里根据实际格式定制解析逻辑
         parseSDTags(description) {
             // 以下是示例逻辑，具体解析规则根据实际情况定制
@@ -527,7 +506,49 @@ createApp({
             const tags = description.split(',');
             return tags.map(tag => tag.trim()); // 去除前后空格
         },
+        // 安装网站到桌面
+        installApp() {
+            const that = this
+            // 显示安装提示
+            that.deferredPrompt.prompt();
+            // 等待用户响应用户提示
+            that.deferredPrompt.userChoice.then((choiceResult) => {
+                if (choiceResult.outcome === "accepted") {
+                    console.log("用户接受安装");
+                } else {
+                    console.log("用户拒绝安装");
+                }
+                deferredPrompt = null;
+            });
+        },
+        // 判断当前是否为PWA环境
+        isPWAMode() {
+            // 检查是否在iOS Safari中以PWA模式运行
+            if (window.navigator.standalone) {
+                this.isPWA = true
+                return true
+            }
+            // 检查是否在其他支持PWA的浏览器中以standalone模式运行
+            if (window.matchMedia('(display-mode: standalone)').matches) {
+                this.isPWA = true
+                return true
+            }
+            // 不在PWA模式下
+            this.isPWA = false
+        },
+        //  检查当前浏览器是否为Chrome或Edge。
+        isEdgeOrChrome() {
+            // 获取浏览器的用户代理字符串
+            const userAgent = navigator.userAgent;
+            // 判断用户代理字符串是否符合Chrome或Edge的格式
+            const isChrome = (
+                /Chrome\/[0-9.]+/.test(userAgent) || /Edg\/[0-9.]+/.test(userAgent)
+            );
+            // 在控制台输出判断结果
+            this.showInstallBtn = isChrome
+            console.log('当前浏览器是否为Chrome或Edge：', isChrome);
 
+        }
     },
     beforeDestroy() {
         this.delete(this.origin)
