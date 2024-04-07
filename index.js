@@ -67,22 +67,25 @@ createApp({
         bgImg.src = 'https://longhao.tech/SDtool/wpback2k.png';
         bgImg.onload = function () {
             that.loading = false
-            // 可以在这里对页面进行操作，如隐藏加载动画等
         };
         bgImg.onerror = function () {
             that.loading = false
-            console.error('背景图片加载失败!');
         };
-        that.isPWAMode()
-        that.isEdgeOrChrome()
-        if ("onbeforeinstallprompt" in window) {
-            window.addEventListener("beforeinstallprompt", (e) => {
-                // 防止Chrome 67及更早版本自动显示安装提示
-                e.preventDefault();
-                // 缓存事件以便稍后触发
-                that.deferredPrompt = e;
-            });
-
+        if ("serviceWorker" in navigator && "onbeforeinstallprompt" in window) {
+            console.log('浏览器支持PWA')
+            try {
+                window.addEventListener("beforeinstallprompt", (e) => {
+                    // 防止Chrome 67及更早版本自动显示安装提示
+                    e.preventDefault();
+                    // 缓存事件以便稍后触发
+                    that.deferredPrompt = e;
+                    console.log('beforeinstallprompt:', e);
+                });
+            } catch (error) {
+                console.error("添加beforeinstallprompt事件监听器失败", error);
+            }
+            that.isPWAMode()
+            that.isEdgeOrChrome()
         } else {
             console.warn('浏览器不支持PWA');
             that.showInstallBtn = false
@@ -509,6 +512,11 @@ createApp({
         // 安装网站到桌面
         installApp() {
             const that = this
+            console.log(that.deferredPrompt)
+            if (!that.deferredPrompt) {
+                alert('您已经安装过了，请在浏览器应用管理页面将旧应用卸载掉再尝试安装')
+                return;
+            }
             // 显示安装提示
             that.deferredPrompt.prompt();
             // 等待用户响应用户提示
@@ -518,7 +526,7 @@ createApp({
                 } else {
                     console.log("用户拒绝安装");
                 }
-                deferredPrompt = null;
+                that.deferredPrompt = null;
             });
         },
         // 判断当前是否为PWA环境
