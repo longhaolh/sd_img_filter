@@ -172,7 +172,7 @@ createApp({
                     that.failNum = delDirFileCount
                     that.handleNum = saveDirFileCount + delDirFileCount
                 } else {
-                    alert('当前浏览器不支持FileSystemAPI,推荐使用edge浏览器或者chrome浏览器');
+                    alert('当前浏览器不支持FileSystemAccessAPI,推荐使用edge浏览器或者chrome浏览器');
                     console.error('当前浏览器不支持 showDirectoryPicker 方法');
                 }
             } catch (error) {
