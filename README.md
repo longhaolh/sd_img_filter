@@ -28,6 +28,10 @@ git clone https://gitee.com/longhao888/sd_img_filter.git
 
 # 更新日志
 
+## v0.2.2
+
+1. 现在可以将网站作为PWA应用安装到windows系统桌面上了
+
 ## v0.2.1
 
 1. 新增撤销功能，在未结束筛选、未刷新页面时可以使用快捷键ctrl+z撤销‘保存’、‘删除’操作

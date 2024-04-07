@@ -17,7 +17,7 @@ createApp({
             privacyMode: false,//隐私模式
             dialogMsg: "这是一个弹框",
             dialogVisible: false,
-            version: "V0.2.1",
+            version: "V0.2.2",
             tips: [
                 "点击红色按钮、←键、Ctrl+S，还行、留着",
                 "点击白色按钮、→键、Ctrl+D，腊鸡、删掉",
@@ -45,7 +45,8 @@ createApp({
             ],
             option: false,
             historyStack: [],
-            notice: "22~24日这几天开车到深圳准备找工作忙的昏天黑地，服务器崩了我都不知道，没有接到通知，导致我备份全丢了o(╥﹏╥)o，已经换了服务器，大家可以加<a href='https://qm.qq.com/q/r143Zn6GSA' target='_blank'>QQ群：675037961</a>，有任何使用问题可以及时联系我"
+            showInstallBtn: false,
+            notice: "本站新增PWA安装功能,可以作为PWA应用安装到电脑桌面,不用打开浏览器即可使用,仅支持<a href='https://www.microsoft.com/zh-cn/edge' target='_blank'>Edge浏览器</a>和<a href='https://www.google.cn/intl/zh-CN/chrome/' target='_blank'>Chrome浏览器</a>安装，点击下方安装按钮即可一键安装，没有按钮请更换浏览器再试试吧！"
         }
     },
     watch: {
@@ -70,6 +71,41 @@ createApp({
             that.loading = false
             console.error('背景图片加载失败!');
         };
+        if ("serviceWorker" in navigator && "onbeforeinstallprompt" in window) {
+            const installButton = document.getElementById("installButton");
+            let deferredPrompt;
+            window.addEventListener("beforeinstallprompt", (e) => {
+                // 防止Chrome 67及更早版本自动显示安装提示
+                e.preventDefault();
+                // 缓存事件以便稍后触发
+                deferredPrompt = e;
+                that.showInstallBtn = isEdgeOrChrome()
+            });
+            installButton.addEventListener("click", (e) => {
+                // 隐藏用户界面，显示安装按钮
+                installButton.hidden = true;
+                // 显示安装提示
+                deferredPrompt.prompt();
+                // 等待用户响应用户提示
+                deferredPrompt.userChoice.then((choiceResult) => {
+                    if (choiceResult.outcome === "accepted") {
+                        console.log("用户接受安装");
+                    } else {
+                        console.log("用户拒绝安装");
+                    }
+                    deferredPrompt = null;
+                });
+            });
+            function isEdgeOrChrome() {
+                const userAgent = navigator.userAgent;
+                const isChrome = (
+                    /Chrome\/[0-9.]+/.test(userAgent) || /Edg\/[0-9.]+/.test(userAgent)
+                );
+                console.log('isChrome', isChrome)
+            }
+        }
+
+
         // 快捷键设置
         document.addEventListener('keydown', function (event) {
             // 检查 ` 键是否被按下 
