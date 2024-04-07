@@ -48,8 +48,13 @@
         <p class="dialog-msg" v-html="dialogMsg"></p>
       </dialog>
       <div class="loader" v-if="loading">
-        <div data-glitch="客官别急,服务器快冒烟了(ಥ﹏ಥ)" class="glitch">
-          客官别急,服务器快冒烟了(ಥ﹏ಥ)
+        <div data-glitch="tool is preparing, Please wait..." class="glitch">
+          Tool is preparing, Please wait...
+        </div>
+      </div>
+      <div class="loader" v-if="processing">
+        <div data-glitch="正在还原源文件夹，请不要关闭页面，否则可能会造成数据丢失!" class="glitch">
+          正在还原源文件夹，请不要关闭页面，否则可能会造成数据丢失!
         </div>
       </div>
       <div class="noOrigin" v-if="swiperList.length<1">
@@ -124,7 +129,7 @@
             <button class="deleteBtn" @click="deleteImg">
               <span class="shadow"></span>
               <span class="edge"></span>
-              <span class="front text">删除 </span>
+              <span class="front text">删除</span>
             </button>
             <button class="saveBtn" @click="saveImg">
               <svg

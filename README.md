@@ -28,6 +28,11 @@ git clone https://gitee.com/longhao888/sd_img_filter.git
 
 # 更新日志
 
+## v0.2.3
+
+1. 新增删除目录前提示，防止误操作
+2. 新增处理图片时的提示
+
 ## v0.2.2
 
 1. 现在可以将网站作为PWA应用安装到windows系统桌面上了

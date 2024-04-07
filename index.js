@@ -17,7 +17,7 @@ createApp({
             privacyMode: false,//隐私模式
             dialogMsg: "这是一个弹框",
             dialogVisible: false,
-            version: "V0.2.2",
+            version: "V0.2.3",
             tips: [
                 "点击红色按钮、←键、Ctrl+S，还行、留着",
                 "点击白色按钮、→键、Ctrl+D，腊鸡、删掉",
@@ -27,7 +27,7 @@ createApp({
                 "'~'键打开隐私模式,一键模糊所有图片"
             ],
             warning: [
-                "deleteImgs下的图片会在筛选完最后一张图时清空",
+                "deleteImgs下的图片会在筛选完最后一张图时清空，不可恢复！请谨慎操作！",
                 "本项目仅供学习交流，完全免费，<a href='https://github.com/longhaolh/sd_img_filter.git' target='_blank'>项目已开源，欢迎star</a>",
                 '所有图片均为本地处理,不会上传到任何服务器',
                 "本项目使用技术尚在研究阶段,大部分浏览器不支持此API,推荐使用<a href='https://www.microsoft.com/zh-cn/edge' target='_blank'>Edge浏览器</a>和<a href='https://www.google.cn/intl/zh-CN/chrome/' target='_blank'>Chrome浏览器</a>",
@@ -48,6 +48,7 @@ createApp({
             showInstallBtn: false,
             isPWA: false,
             deferredPrompt: null,
+            processing: false,
             notice: "本站新增PWA安装功能,可以作为PWA应用安装到电脑桌面,不用打开浏览器即可使用,仅支持<a href='https://www.microsoft.com/zh-cn/edge' target='_blank'>Edge浏览器</a>和<a href='https://www.google.cn/intl/zh-CN/chrome/' target='_blank'>Chrome浏览器</a>安装，点击下方安装按钮即可一键安装，没有按钮请更换浏览器再试试吧！"
         }
     },
@@ -270,6 +271,18 @@ createApp({
             const that = this;
             if (that.option) return;
             that.option = true;
+            let confirm = true;
+            if (that.origin.name === "deleteImgs" && that.noHandleNum <= 1) {
+                alert("检测到您选择的是deleteImgs文件夹，请及时在筛选完成后将deleteImgs文件夹下的图片移动至上层文件夹，否则此文件夹图片会在上层文件夹筛选完毕时被彻底删除!请及时处理")
+            }
+            if (that.noHandleNum <= 1) {
+                confirm = window.confirm("已经是最后一张图片了，继续操作将彻底删除不合格图片，不可恢复，是否继续？")
+            }
+            if (!confirm) {
+                alert('已取消本次操作，如果您想重新筛选deleteImgs文件夹下的图片，请重新选择源目录，')
+                that.option = false
+                return;
+            }
             try {
                 const fileHandle = that.swiperHandle[that.curImgIndex]; // 原始文件句柄
                 const file = await fileHandle.getFile(); // 获取文件对象
@@ -304,6 +317,18 @@ createApp({
             const that = this;
             if (that.option) return;
             that.option = true;
+            let confirm = true;
+            if (that.origin.name === "deleteImgs" && that.noHandleNum <= 1) {
+                alert("检测到您选择的是deleteImgs文件夹，请及时在筛选完成后将deleteImgs文件夹下的图片移动至上层文件夹，否则此文件夹图片会在上层文件夹筛选完毕时被彻底删除!请及时处理")
+            }
+            if (that.noHandleNum <= 1) {
+                confirm = window.confirm("已经是最后一张图片了，继续操作将彻底删除不合格图片，不可恢复，是否继续？")
+            }
+            if (!confirm) {
+                alert('已取消本次操作，如果您想重新筛选deleteImgs文件夹下的图片，请重新选择源目录，')
+                that.option = false
+                return;
+            }
             try {
                 const fileHandle = that.swiperHandle[that.curImgIndex]; // 原始文件句柄
                 const file = await fileHandle.getFile(); // 获取文件对象
@@ -317,7 +342,6 @@ createApp({
                 try {
                     // 针对支持删除操作的平台，进行文件删除
                     await fileHandle.remove(); // 删除原文件来模拟移动
-                    console.log('源文件已删除');
                     that.refreshPage()
                     that.failNum += 1
                 } catch (e) {
@@ -329,9 +353,9 @@ createApp({
                 that.option = false;
             }
         },
-        // 修改 copyAndDeleteSavedImages 方法以复制和删除 savedImgs 文件夹
+        // 复制savedImgs所有图片到源目录并删除 savedImgs 文件夹
         async copyAndDeleteSavedImages(rootHandle) {
-            this.loading
+            this.processing = true
             try {
                 const savedImgsDirHandle = await rootHandle.getDirectoryHandle('savedImgs', { create: false });
                 let copyPromises = [];
@@ -344,7 +368,18 @@ createApp({
                         copyPromises.push(writableStream.write(file).then(() => writableStream.close()));
                     }
                 }
-                await Promise.all(copyPromises);
+                await Promise.all(copyPromises).then(() => {
+                    this.processing = false
+                    if (this.origin.name === 'deleteImgs') {
+                        alert('检测到您选择的是deleteImgs文件夹，请及时将deleteImgs文件夹下的图片移动至上层文件夹，否则此文件夹图片会在上层文件夹筛选完毕时被彻底删除!这非常重要，请及时处理！')
+                    } else {
+                        alert('还原完成！现在可以放心关闭页面了')
+                    }
+                }).catch((error) => {
+                    alert('复制文件时出错: ', JSON.stringify(error));
+                    console.error('复制文件时出错: ', error);
+                    this.processing = false
+                });
                 // 删除整个 savedImgs 文件夹
                 await rootHandle.removeEntry('savedImgs', { recursive: true });
             } catch (error) {
@@ -359,24 +394,24 @@ createApp({
             that.foreachDir(that.directoryHandle).then(async updatedRootHandle => {
                 that.origin = updatedRootHandle; // 更新 origin 对象
                 // 检查根目录下是否只存在 savedImgs、deleteImgs 文件夹和非图片文件
-                let onlySpecialDirsAndNonImageFilesExist = true;
+                let onlyDir = true;
                 for (const child of updatedRootHandle.children) {
                     // 检查是否只有savedImgs 和 deleteImgs文件夹
                     if (child.kind === 'directory' &&
                         !['savedImgs', 'deleteImgs'].includes(child.name)) {
-                        onlySpecialDirsAndNonImageFilesExist = false;
+                        onlyDir = false;
                         break;
                     }
                     if (child.kind === 'file') {
                         const file = await child.getFile();
                         if (file.type.match('image.*')) {
                             // 如果文件是图片类型，则不满足条件
-                            onlySpecialDirsAndNonImageFilesExist = false;
+                            onlyDir = false;
                             break;
                         }
                     }
                 }
-                if (onlySpecialDirsAndNonImageFilesExist) {
+                if (onlyDir) {
                     // 初始化界面变量
                     alert(`太棒了!本次图片已经筛选完毕了,一共处理了${that.handleNum}张图片,清除了${that.failNum}张废图，继续清理请重新选择源文件夹`)
                     that.origin = {}
