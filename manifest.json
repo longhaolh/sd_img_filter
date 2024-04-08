@@ -1,6 +1,6 @@
 {
-  "short_name": "sdImgFillter",
-  "name": "SDImageFillter",
+  "short_name": "sdImgFilter",
+  "name": "SDImageFilter",
   "icons": [
     {
       "src": "image/icon1.png",
