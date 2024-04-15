@@ -47,7 +47,7 @@
         <div class="closeBtn" @click="dialogVisible = false">X</div>
         <p class="dialog-msg" v-html="dialogMsg"></p>
       </dialog>
-      <div class="loader" v-if="loading">
+      <div class="loader" v-if="loading" style="z-index: 9999;">
         <div data-glitch="tool is preparing, Please wait..." class="glitch">
           Tool is preparing, Please wait...
         </div>

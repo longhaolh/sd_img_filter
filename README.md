@@ -28,6 +28,10 @@ git clone https://gitee.com/longhao888/sd_img_filter.git
 
 # 更新日志
 
+## v0.2.4  
+
+1. 修复了加载界面的渲染错误
+
 ## v0.2.3
 
 1. 新增删除目录前提示，防止误操作

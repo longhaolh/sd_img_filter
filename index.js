@@ -17,7 +17,7 @@ createApp({
             privacyMode: false,//隐私模式
             dialogMsg: "这是一个弹框",
             dialogVisible: false,
-            version: "V0.2.3",
+            version: "V0.2.4",
             tips: [
                 "点击红色按钮、←键、Ctrl+S，还行、留着",
                 "点击白色按钮、→键、Ctrl+D，腊鸡、删掉",
