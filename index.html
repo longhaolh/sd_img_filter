@@ -48,7 +48,7 @@
         <p class="dialog-msg" v-html="dialogMsg"></p>
       </dialog>
       <div class="loader" v-if="loading" style="z-index: 9999;">
-        <div data-glitch="tool is preparing, Please wait..." class="glitch">
+        <div data-glitch="Tool is preparing, Please wait..." class="glitch">
           Tool is preparing, Please wait...
         </div>
       </div>
@@ -96,15 +96,18 @@
 
       <div class="container" v-if="swiperList.length>0">
         <div class="swiper">
-          <img
-            draggable="false"
-            :src="item"
-            :class="{active:curImgIndex===index,blur:privacyMode}"
-            alt=""
-            v-for="(item,index) in swiperList"
-            :key="index"
-            @click="chooseImg(index)"
-          />
+          <div class="img-wrap" 
+              v-for="(item,index) in swiperList"
+              :class="{active:curImgIndex===index,blur:privacyMode}"
+              :key="index"
+              @click="chooseImg(index)">
+            <img
+              draggable="false"
+              :src="item"
+              alt=""
+              
+            />
+          </div>
         </div>
         <div class="previewBox">
           <img
@@ -198,9 +201,19 @@
               使用须知：
               <li v-for="item in warning" v-html="item"></li>
             </ul>
+            <ul style="margin-top: 20px;font-size: 1.3rem;">
+              本站已帮助 <span style="color: #892cdc;">{{userCount}}</span> 个小伙伴处理了<span style="color: #892cdc;">{{statistics[0].total_sum}}</span>张图片
+            </ul>
+            <ul>
+              链接分享:
+              <li v-for="item in links" :key="item">
+                <a :href="item.link" target="_blank">{{item.name}}</a>
+              </li>
+            </ul>
           </div>
         </div>
       </div>
+      
       <p class="version">
         当前版本:<a
           rel="noopener"
@@ -209,6 +222,9 @@
           >{{version}}</a
         >
       </p>
+      <div class="donation">
+        <p v-if="donation.length>0" :class="{donation_item:true,show:index===0}">感谢 <span style="color: #892cdc;">{{donation[index].name}}</span> 赞助的{{donation[index].money}}¥</p>
+      </div>
     </div>
   </body>
   <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>

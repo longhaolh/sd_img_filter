@@ -19,10 +19,10 @@ createApp({
             dialogVisible: false,
             version: "V0.2.4",
             tips: [
-                "点击红色按钮、←键、Ctrl+S，还行、留着",
-                "点击白色按钮、→键、Ctrl+D，腊鸡、删掉",
-                "Ctrl+Z，删错了？手滑了？给我回来！刷新页面、处理完毕时失效！",
-                "Mac用户用Meta键+S、Meta键+D、Meta键+Z",
+                "点击'保存'按钮、←键、Ctrl+S——保留",
+                "点击'删除'按钮、→键、Ctrl+D——删除",
+                "Ctrl+Z，撤销",
+                "Mac用户用Meta代替Ctrl键",
                 '点击源目录名称更换源目录',
                 "'~'键打开隐私模式,一键模糊所有图片"
             ],
@@ -49,6 +49,33 @@ createApp({
             isPWA: false,
             deferredPrompt: null,
             processing: false,
+            index: 0,
+            donation: [],
+            donateTimer: null,
+            statistics: {},
+            userCount: 0,
+            links: [
+                {
+                    link: "https://www.bilibili.com/video/BV1As4y127HW/?share_source=copy_web&vd_source=f5ba953af0ca76ef903f85ddff96e791",
+                    name: "B站StableDiffusion教程"
+                },
+                {
+                    link: "https://www.liblib.art/",
+                    name: "哩布哩布-国内模型社区"
+                },
+                {
+                    link: "https://civitai.com/",
+                    name: "C站-国外最大模型社区(需要魔法)"
+                },
+                {
+                    link: "https://tags.novelai.dev/",
+                    name: "标签超市-快速添加提示词"
+                },
+                {
+                    link: "https://honghai.xn--6kro9vzxa373b.com/#/register?code=gbCT9K1N",
+                    name: "魔法"
+                }
+            ],
             notice: "本站新增PWA安装功能,可以作为PWA应用安装到电脑桌面,不用打开浏览器即可使用,仅支持<a href='https://www.microsoft.com/zh-cn/edge' target='_blank'>Edge浏览器</a>和<a href='https://www.google.cn/intl/zh-CN/chrome/' target='_blank'>Chrome浏览器</a>安装，点击下方安装按钮即可一键安装，没有按钮请更换浏览器再试试吧！"
         }
     },
@@ -80,7 +107,6 @@ createApp({
                     e.preventDefault();
                     // 缓存事件以便稍后触发
                     that.deferredPrompt = e;
-                    console.log('beforeinstallprompt:', e);
                 });
             } catch (error) {
                 console.error("添加beforeinstallprompt事件监听器失败", error);
@@ -92,7 +118,20 @@ createApp({
             that.showInstallBtn = false
             that.isPWA = false
         }
-
+        //获取捐赠信息
+        fetch('https://longhao.tech/api/sdtool/donate').then((response) => response.json())
+            .then(res => {
+                that.donation = res.data
+                that.donateTimer = setInterval(() => {
+                    that.index = that.index < res.data.length - 1 ? that.index + 1 : 0
+                }, 6000)
+            })
+        //获取网站统计信息
+        fetch("https://longhao.tech/api/sdtool/query").then((response) => response.json())
+            .then((res) => {
+                that.statistics = res.data
+                that.userCount = res.user
+            })
 
         // 快捷键设置
         document.addEventListener('keydown', function (event) {
@@ -412,6 +451,7 @@ createApp({
                     }
                 }
                 if (onlyDir) {
+                    that.subRecord()
                     // 初始化界面变量
                     alert(`太棒了!本次图片已经筛选完毕了,一共处理了${that.handleNum}张图片,清除了${that.failNum}张废图，继续清理请重新选择源文件夹`)
                     that.origin = {}
@@ -454,8 +494,8 @@ createApp({
         },
         // 记录操作到历史栈中
         recordHistory(fileHandle, actionType) {
-            if (this.historyStack.length >= 10) {
-                this.historyStack.shift(); // 确保栈的最大长度不超过10
+            if (this.historyStack.length >= 20) {
+                this.historyStack.shift(); // 确保栈的最大长度不超过20
             }
             this.historyStack.push({ fileHandle, actionType });
         },
@@ -591,6 +631,33 @@ createApp({
             this.showInstallBtn = isChrome
             console.log('当前浏览器是否为Chrome或Edge：', isChrome);
 
+        },
+        // 提交记录
+        subRecord() {
+            const data = {
+                sub_total: this.handleNum,
+                sub_fail: this.failNum,
+                sub_success: this.passNum,
+                is_pwa: this.isPWA,
+            };
+            const headers = {
+                'Content-Type': 'application/json',  // 设置内容类型为JSON
+            };
+
+            const request = new Request("https://longhao.tech/api/sdtool/sub", {
+                method: "POST",
+                headers,
+                body: JSON.stringify(data),
+            });
+            fetch(request).then(response => response.json()).then(response => {
+                fetch("https://longhao.tech/api/sdtool/query").then((response1) => response1.json())
+                    .then((res) => {
+                        this.$nextTick(() => {
+                            this.statistics = res.data
+                            this.userCount = res.user
+                        });
+                    })
+            })
         }
     },
     beforeDestroy() {
